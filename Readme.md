@@ -1,0 +1,2 @@
+# SoRendering
+A Soft Renderer
