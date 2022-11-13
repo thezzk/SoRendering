@@ -1,9 +1,12 @@
 #include "raylib.h"
-#include "raymath.h"
-#include "math.h"
-#include "Eigen/Core"
 
-int main(void)
+#include "SoConstant.h"
+
+static const int screenWidth = 800;
+static const int screenHeight = 450;
+
+int main()
 {
     return 0;
 }
+
