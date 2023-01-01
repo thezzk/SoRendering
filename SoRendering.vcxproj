@@ -156,11 +156,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\SoCamera.cpp" />
+    <ClCompile Include="src\SoRasterizer.cpp" />
     <ClCompile Include="src\SoTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\SoFrameBuffer.h" />
+    <ClInclude Include="src\SoCamera.h" />
     <ClInclude Include="src\SoConstant.h" />
     <ClInclude Include="src\SoMath.h" />
+    <ClInclude Include="src\SoRasterizer.h" />
     <ClInclude Include="src\SoTransform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -34,4 +34,4 @@ namespace SoRendering
 		static SoMatrix4f GetScaleMatrix(SoVector3f scale);
 
 	};
-};
+}
