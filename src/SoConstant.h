@@ -1,6 +1,6 @@
 #pragma once
 #include <Eigen/Core>
-
+#include <Eigen/Dense>
 
 
 namespace SoRendering
@@ -11,8 +11,10 @@ namespace SoRendering
 	constexpr float SO_RAD2DEG = 180.f / SO_PI;
 
 	//Vector
+	typedef Eigen::Matrix<float, 2, 1> SoVector2f;
 	typedef Eigen::Matrix<float, 3, 1> SoVector3f;
 	typedef Eigen::Matrix<float, 4, 1> SoVector4f;
+	typedef Eigen::Matrix<int, 2, 1> SoVector2i;
 	typedef SoVector4f SoQuaternion;
 
 	//Matrix

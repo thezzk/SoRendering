@@ -167,6 +167,7 @@
     <ClInclude Include="src\SoMath.h" />
     <ClInclude Include="src\SoRasterizer.h" />
     <ClInclude Include="src\SoTransform.h" />
+    <ClInclude Include="src\SoTriangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

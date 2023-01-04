@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "raymath.h"
-//#include "SoConstant.h"
 #include "SoMath.h"
 #include "CppUnitTest.h"
 #include <Eigen/Core>

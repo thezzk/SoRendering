@@ -3,7 +3,7 @@
 namespace SoRendering
 {
 	SoCamera::SoCamera()
-	: position(SoVector3f::Zero()), targetDirection(-SoVector3f::UnitZ()), upDirection(SoVector3f::UnitY()),
+	: position(SoVector3f::Zero()), targetDirection(SoVector3f::UnitZ()), upDirection(SoVector3f::UnitY()),
 	  projectionType(CAMERA_PROJECTION_ORTHOGRAPHIC), fovY(0), aspect(16.f / 9.f)
 		
 	{
@@ -37,14 +37,32 @@ namespace SoRendering
 
 	void SoCamera::LookAt(const SoVector3f& targetDirection, const SoVector3f& upDirection)
 	{
-		this->targetDirection = targetDirection;
-		this->upDirection = upDirection;
+		this->targetDirection = targetDirection.normalized();
+		this->upDirection = upDirection.normalized();
 		UpdateViewMatrix();
 	}
 
 	void SoCamera::UpdateViewMatrix()
 	{
-		viewMatrix = SoMatrix4f::Identity();
+		SoMatrix4f invTranslate, invRotate;
+		invTranslate <<
+			1.f, 0, 0, -position.x(),
+			0, 1.f, 0, -position.y(),
+			0, 0, 1.f, -position.z(),
+			0, 0, 0, 1.f;
+
+
+		const SoVector3f cross = (-targetDirection).cross(upDirection).normalized();
+
+		invRotate <<
+			cross.x(), cross.y(), cross.z(), 0,
+			upDirection.x(), upDirection.y(), upDirection.z(), 0,
+			-targetDirection.x(), -targetDirection.y(), -targetDirection.z(), 0,
+			0, 0, 0, 1.f;
+
+
+
+		viewMatrix = invRotate * invTranslate;
 	}
 
 	void SoCamera::UpdateProjectMatrix()

@@ -2,6 +2,7 @@
 
 #include <SoCamera.h>
 #include <SoFrameBuffer.h>
+#include <SoTriangle.h>
 
 namespace SoRendering
 {
@@ -9,9 +10,20 @@ namespace SoRendering
 	{
 	public:
 		SoRasterizer();
-		void Draw();
+		SoRasterizer(int width, int height);
+
+		void Init();
+		void UpdateFrameBuffer(const SoCamera& camera);
+		void DrawFrame();
+
+		std::vector<SoTriangle>& GetTriangleLst() { return triangleLst; }
+
 	private:
-		SoCamera camera;
+		void RasterizeTriangle(const SoTriangle& tri);
+
 		SoFrameBuffer<SoVector3f> colorBuffer;
+		int screenWidth;
+		int screenHeight;
+		std::vector<SoTriangle> triangleLst;
 	};
 }
