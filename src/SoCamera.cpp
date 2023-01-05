@@ -88,10 +88,14 @@ namespace SoRendering
 
 	void SoCamera::UpdatePerspectiveProject()
 	{
-		float s = 1 / tan(fovY / 2);
+		float fovX = 2 * atan(aspect * tan(fovY / 2.0f));
+
+		float sx = 1.f / tan(fovX / 2.f);
+		float sy = 1.f / tan(fovY / 2.f);
+
 		projectMatrix <<
-			s, 0, 0, 0,
-			0, s, 0, 0,
+			sx, 0, 0, 0,
+			0, sy, 0, 0,
 			0, 0, -farPlane / (farPlane - nearPlane), -1.f,
 			0, 0, -(farPlane * nearPlane) / (farPlane - nearPlane), 0;
 		
