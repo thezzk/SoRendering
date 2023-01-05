@@ -1,10 +1,11 @@
 #include "SoCamera.h"
-
+#include "SoMath.h"
 namespace SoRendering
 {
 	SoCamera::SoCamera()
 	: position(SoVector3f::Zero()), targetDirection(SoVector3f::UnitZ()), upDirection(SoVector3f::UnitY()),
-	  projectionType(CAMERA_PROJECTION_ORTHOGRAPHIC), fovY(0), aspect(16.f / 9.f)
+		orthogonalViewportSize({160.f, 90.f}), projectionType(CAMERA_PROJECTION_ORTHOGRAPHIC), fovY(SO_PI/3.f), aspect(16.f / 9.f),
+		nearPlane(1.f), farPlane(1000.f)
 		
 	{
 		UpdateProjectMatrix();
@@ -65,9 +66,13 @@ namespace SoRendering
 		viewMatrix = invRotate * invTranslate;
 	}
 
-	void SoCamera::UpdateProjectMatrix()
+	void SoCamera::UpdateOrthoProject()
 	{
-		float l = -160.f, r = 160.f, t = 90.f, b = -90.f, n = 100.f, f = -100.f;
+		float l = -orthogonalViewportSize.x() / 2,
+			r = orthogonalViewportSize.x() / 2,
+			t = orthogonalViewportSize.y() / 2,
+			b = -orthogonalViewportSize.y() / 2,
+			n = nearPlane, f = -farPlane;
 		SoMatrix4f translate;
 		translate << 1.f, 0, 0, -(r + l) / 2.f,
 			0, 1.f, 0, -(t + b) / 2.f,
@@ -79,6 +84,31 @@ namespace SoRendering
 			0, 0, 2.f / (n - f), 0,
 			0, 0, 0, 1.f;
 		projectMatrix = scale * translate;
+	}
+
+	void SoCamera::UpdatePerspectiveProject()
+	{
+		float s = 1 / tan(fovY / 2);
+		projectMatrix <<
+			s, 0, 0, 0,
+			0, s, 0, 0,
+			0, 0, -farPlane / (farPlane - nearPlane), -1.f,
+			0, 0, -(farPlane * nearPlane) / (farPlane - nearPlane), 0;
+		
+			
+	}
+
+
+	void SoCamera::UpdateProjectMatrix()
+	{
+		if(projectionType == CAMERA_PROJECTION_ORTHOGRAPHIC)
+		{
+			UpdateOrthoProject();
+		}
+		else if(projectionType == CAMERA_PROJECTION_PERSPECTIVE)
+		{
+			UpdatePerspectiveProject();
+		}
 
 	}
 

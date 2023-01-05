@@ -15,13 +15,20 @@ namespace SoRendering
 		SoVector3f position;
 		SoVector3f targetDirection;
 		SoVector3f upDirection;
+
+		SoVector2f orthogonalViewportSize; //width, height
+
 		SoMatrix4f viewMatrix;
 		SoMatrix4f projectMatrix;
 		CAMERA_PROJECTION_TYPE projectionType;
-		float fovY;
+		float fovY; //In radius
 		float aspect;
+		float nearPlane;
+		float farPlane;
 
 		void UpdateViewMatrix();
+		void UpdateOrthoProject();
+		void UpdatePerspectiveProject();
 		void UpdateProjectMatrix();
 	public:
 		SoCamera();
@@ -31,6 +38,11 @@ namespace SoRendering
 		void SetProjectionType(const CAMERA_PROJECTION_TYPE projType);
 		void SetPosition(const SoVector3f& position);
 		void LookAt(const SoVector3f& targetDirection, const SoVector3f& upDirection);
+
+		const SoVector3f& GetPosition() const
+		{
+			return position;
+		}
 
 		float GetFovY() const
 		{

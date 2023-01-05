@@ -5,7 +5,7 @@
 namespace SoRendering
 {
 
-	SoRasterizer::SoRasterizer(): screenWidth(1600), screenHeight(900), colorBuffer(1600, 900, SoVector3f::Zero())
+	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SoVector3f::Zero())
 	{
 	}
 
@@ -24,7 +24,7 @@ namespace SoRendering
 		//hard coded transform
 		SoTransform transform;
 
-		transform.SetPosition(SoVector3f(60.f, 0.f, -30.f));
+		transform.SetPosition(SoVector3f(0.f, 0.f, 30.f));
 
 		transform.SetRotation(SoMath::GetQuaternionFromEulerAngle
 		(SoRendering::SoVector3f(
@@ -83,6 +83,7 @@ namespace SoRendering
 			{
 				if(SoTriangle::IsPointInside(SoVector3f(i, j, 1.f), tri))
 				{
+
 					colorBuffer.SetValueAtPos(i, j, SoVector3f(255.f, 0.f, 0.f));
 				}
 			}
@@ -104,7 +105,7 @@ namespace SoRendering
 				color.g = (char)colorV[1];
 				color.b = (char)colorV[2];
 				color.a = 255;
-				DrawPixel(j, screenHeight - 1 - i, color); // IN Raylib, coordinate (0,0) begins from the top left corner
+					DrawPixel(j, screenHeight - 1 - i, color); // IN Raylib, coordinate (0,0) begins from the top left corner
 			}
 		}
 		EndDrawing();
