@@ -165,6 +165,7 @@
     <ClInclude Include="src\SoCamera.h" />
     <ClInclude Include="src\SoConstant.h" />
     <ClInclude Include="src\SoMath.h" />
+    <ClInclude Include="src\SoMesh.h" />
     <ClInclude Include="src\SoRasterizer.h" />
     <ClInclude Include="src\SoTransform.h" />
     <ClInclude Include="src\SoTriangle.h" />

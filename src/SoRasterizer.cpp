@@ -2,14 +2,16 @@
 #include "SoRasterizer.h"
 #include "SoTransform.h"
 #include "SoMath.h"
+
 namespace SoRendering
 {
 
-	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SoVector3f::Zero())
+	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SoVector3f::Zero()), rasterizerMode(RASTERIZER_MODE_COLOR)
 	{
 	}
 
-	SoRasterizer::SoRasterizer(int width, int height): screenWidth(width), screenHeight(height), colorBuffer(width, height, SoVector3f::Zero())
+	SoRasterizer::SoRasterizer(int width, int height, RASTERIZER_MODE rasterizerMode): screenWidth(width), screenHeight(height),
+	colorBuffer(width, height, SoVector3f::Zero()), rasterizerMode(rasterizerMode)
 	{
 	}
 
@@ -62,30 +64,97 @@ namespace SoRendering
 
 	void SoRasterizer::RasterizeTriangle(const SoTriangle& tri)
 	{
+		switch (rasterizerMode)
+		{
+		case RASTERIZER_MODE_COLOR:
+			RasterizeTriangleColorMode(tri);
+			break;
+		case RASTERIZER_MODE_WIRE:
+			RasterizeTriangleWireMode(tri);
+			break;
+		}
+	}
+
+	void SoRasterizer::RasterizeTriangleColorMode(const SoTriangle& tri)
+	{
 		float xmin = std::numeric_limits<float>::max();
 		float xmax = std::numeric_limits<float>::min();
 		float ymin = std::numeric_limits<float>::max();
 		float ymax = std::numeric_limits<float>::min();
-		for(const SoVector4f& v: tri.vertex)
+		for (const SoVector4f& v : tri.vertex)
 		{
 			if (v.x() < xmin)
 				xmin = std::max(0.f, v.x());
 			if (v.x() > xmax)
 				xmax = std::min((float)screenWidth, v.x());
 			if (v.y() < ymin)
-				ymin = std::max(0.f , v.y());
+				ymin = std::max(0.f, v.y());
 			if (v.y() > ymax)
 				ymax = std::min((float)screenHeight, v.y());
 		}
-		for(int i = (int)xmin; i < (int)xmax; ++i)
+		for (int i = (int)xmin; i < (int)xmax; ++i)
 		{
-			for(int j = (int)ymin; j < (int)ymax; ++j)
+			for (int j = (int)ymin; j < (int)ymax; ++j)
 			{
-				if(SoTriangle::IsPointInside(SoVector3f(i, j, 1.f), tri))
+				if (SoTriangle::IsPointInside(SoVector3f(i, j, 1.f), tri))
 				{
-
-					colorBuffer.SetValueAtPos(i, j, SoVector3f(255.f, 0.f, 0.f));
+					DrawPoint(SoVector2i(i, j), SoVector3f(255.f, 0.f, 0.f));
 				}
+			}
+		}
+	}
+
+	void SoRasterizer::RasterizeTriangleWireMode(const SoTriangle& tri)
+	{
+		for(int i = 0; i < 3; ++i)
+		{
+			int x0 = (int)tri.vertex[i].x();
+			x0 = x0 >= screenWidth ? screenWidth - 1 : x0;
+			x0 = x0 < 0 ? 0 : x0;
+			int y0 = (int)tri.vertex[i].y();
+			y0 = y0 >= screenHeight ? screenHeight - 1 : y0;
+			y0 = y0 < 0 ? 0 : y0;
+			int x1 = (int)tri.vertex[(i + 1)%3].x();
+			x1 = x1 >= screenWidth ? screenWidth - 1 : x1;
+			x1 = x1 < 0 ? 0 : x1;
+			int y1 = (int)tri.vertex[(i + 1)%3].y();
+			y1 = y1 >= screenHeight ? screenHeight - 1 : y1;
+			y1 = y1 < 0 ? 0 : y1;
+
+			DrawLine(SoVector2i(x0, y0), SoVector2i(x1, y1), SoVector3f(255.f, 0.f, 0.f));
+		}
+	}
+
+	// Bresenham's line algorithm
+	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+	void SoRasterizer::DrawLine(SoVector2i from, SoVector2i to, SoVector3f color)
+	{
+		int x0 = from.x(), y0 = from.y(), x1 = to.x(), y1 = to.y();
+		int dx = abs(x1 - x0);
+		int sx = x0 < x1 ? 1 : -1;
+		int dy = -abs(y1 - y0);
+		int sy = y0 < y1 ? 1 : -1;
+		int error = dx + dy;
+
+		while (true)
+		{
+			DrawPoint(SoVector2i(x0, y0), color);
+			if (x0 == x1 && y0 == y1)
+				break;
+			int e2 = 2 * error;
+			if (e2 >= dy)
+			{
+				if (x0 == x1)
+					break;
+				error = error + dy;
+				x0 = x0 + sx;
+			}
+			if (e2 <= dx) 
+			{
+				if (y0 == y1)
+					break;
+				error = error + dx;
+				y0 = y0 + sy;
 			}
 		}
 	}
