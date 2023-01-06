@@ -26,27 +26,27 @@ int main()
     tri.vertex[0] = { 30.f, 0.0f, 5.f, 1.f };
     tri.vertex[1] = { 0.f, 20.0f, 5.f, 1.f };
     tri.vertex[2] = { -2.f, 0.0f, 5.f, 1.f };
-    tri.color[0] = SoRendering::SoVector3f(255.f, 0, 0);
-    tri.color[1] = SoRendering::SoVector3f(255.f, 0, 0);
-    tri.color[2] = SoRendering::SoVector3f(255.f, 0, 0);
+    tri.color[0] = SoRendering::SO_PRESET_COLOR_RED;
+    tri.color[1] = SoRendering::SO_PRESET_COLOR_RED;
+    tri.color[2] = SoRendering::SO_PRESET_COLOR_RED;
     triLst.push_back(tri);
 
 	SoRendering::SoTriangle tri2;
     tri2.vertex[0] = { -10.f, 0.0f, 10.f, 1.f };
     tri2.vertex[1] = { 10.f, 5.0f, 10.f, 1.f };
     tri2.vertex[2] = { 0.f, 20.0f, 10.f, 1.f };
-    tri2.color[0] = SoRendering::SoVector3f(0, 255.f, 0);
-    tri2.color[1] = SoRendering::SoVector3f(0, 255.f, 0);
-    tri2.color[2] = SoRendering::SoVector3f(0, 255.f, 0);
+    tri2.color[0] = SoRendering::SO_PRESET_COLOR_GREEN;
+    tri2.color[1] = SoRendering::SO_PRESET_COLOR_GREEN;
+    tri2.color[2] = SoRendering::SO_PRESET_COLOR_GREEN;
     triLst.push_back(tri2);
 
     SoRendering::SoTriangle triback;
     triback.vertex[0] = { -10.f, 0.0f, 5.f, 1.f };
     triback.vertex[1] = { 0.f, 0.0f, 5.f, 1.f };
     triback.vertex[2] = { 0.f, -10.0f, 5.f, 1.f };
-    triback.color[0] = SoRendering::SoVector3f(0, 0, 255.f);
-    triback.color[1] = SoRendering::SoVector3f(0, 0, 255.f);
-    triback.color[2] = SoRendering::SoVector3f(0, 0, 255.f);
+    triback.color[0] = SoRendering::SO_PRESET_COLOR_BLUE;
+    triback.color[1] = SoRendering::SO_PRESET_COLOR_BLUE;
+    triback.color[2] = SoRendering::SO_PRESET_COLOR_BLUE;
     triLst.push_back(triback);
 
 	rasterizer.GetTriangleLst() = triLst;

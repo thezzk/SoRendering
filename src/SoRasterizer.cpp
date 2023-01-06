@@ -6,12 +6,12 @@
 namespace SoRendering
 {
 
-	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SoVector3f::Zero()), zBuffer(800, 450, std::numeric_limits<float>::min()), rasterizerMode(RASTERIZER_MODE_COLOR)
+	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SO_PRESET_COLOR_BLACK), zBuffer(800, 450, std::numeric_limits<float>::min()), rasterizerMode(RASTERIZER_MODE_COLOR)
 	{
 	}
 
 	SoRasterizer::SoRasterizer(int width, int height, RASTERIZER_MODE rasterizerMode): screenWidth(width), screenHeight(height),
-	colorBuffer(width, height, SoVector3f::Zero()), zBuffer(width, height, std::numeric_limits<float>::min()), rasterizerMode(rasterizerMode)
+	colorBuffer(width, height, SO_PRESET_COLOR_BLACK), zBuffer(width, height, std::numeric_limits<float>::min()), rasterizerMode(rasterizerMode)
 	{
 	}
 
@@ -105,11 +105,11 @@ namespace SoRendering
 				{
 
 					SoVector3f barycentricCoord = tri.GetBarycentricCoord(samplePoint);
-					const SoVector3f& color = SoTriangle::InterploateWithBarycentricCoord(tri.color[0], tri.color[1], tri.color[2], barycentricCoord);
+					const SoColor& color = SoTriangle::InterploateWithBarycentricCoord(tri.color[0], tri.color[1], tri.color[2], barycentricCoord);
 
 					if (zBuffer.GetValueAtPos(i, j) < z)
 					{
-						DrawPoint<SoVector3f>(colorBuffer, SoVector2i(i, j), color);
+						DrawPoint<SoColor>(colorBuffer, SoVector2i(i, j), color);
 						DrawPoint<float>(zBuffer, SoVector2i(i, j), z);
 					}
 				}
@@ -140,7 +140,7 @@ namespace SoRendering
 
 	// Bresenham's line algorithm
 	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-	void SoRasterizer::DrawLine(SoVector2i from, SoVector2i to, SoVector3f color)
+	void SoRasterizer::DrawLine(const SoVector2i& from, const SoVector2i& to, const SoColor& color)
 	{
 		int x0 = from.x(), y0 = from.y(), x1 = to.x(), y1 = to.y();
 		int dx = abs(x1 - x0);
@@ -151,7 +151,7 @@ namespace SoRendering
 
 		while (true)
 		{
-			DrawPoint<SoVector3f>(colorBuffer, SoVector2i(x0, y0), color);
+			DrawPoint<SoColor>(colorBuffer, SoVector2i(x0, y0), color);
 
 			if (x0 == x1 && y0 == y1)
 				break;
@@ -181,14 +181,14 @@ namespace SoRendering
 		{
 			for(int j = 0; j < screenWidth; ++j)
 			{
-				const SoVector3f& colorV = colorBuffer.GetValueAtPos(j, i);
+				const SoColor& soColor = colorBuffer.GetValueAtPos(j, i);
 
 				Color color;
-				color.r = (char)colorV[0];
-				color.g = (char)colorV[1];
-				color.b = (char)colorV[2];
-				color.a = 255;
-					DrawPixel(j, screenHeight - 1 - i, color); // IN Raylib, coordinate (0,0) begins from the top left corner
+				color.r = (char)soColor[0];
+				color.g = (char)soColor[1];
+				color.b = (char)soColor[2];
+				color.a = (char)soColor[3];
+				DrawPixel(j, screenHeight - 1 - i, color); // IN Raylib, coordinate (0,0) begins from the top left corner
 			}
 		}
 		EndDrawing();

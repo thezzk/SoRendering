@@ -23,9 +23,9 @@ namespace SoRendering
 		void Init();
 		void UpdateFrameBuffer(const SoCamera& camera);
 		void DrawFrame();
-		void DrawLine(SoVector2i from, SoVector2i to, SoVector3f color);
+		void DrawLine(const SoVector2i& from, const SoVector2i& to, const SoColor& color);
 		template <typename T>
-		void DrawPoint(SoFrameBuffer<T>& targetBuffer, SoVector2i pos, const T& pixel){ targetBuffer.SetValueAtPos(pos.x(), pos.y(), pixel); }
+		void DrawPoint(SoFrameBuffer<T>& targetBuffer, const SoVector2i& pos, const T& pixel){ targetBuffer.SetValueAtPos(pos.x(), pos.y(), pixel); }
 
 		std::vector<SoTriangle>& GetTriangleLst() { return triangleLst; }
 
@@ -35,7 +35,7 @@ namespace SoRendering
 		void RasterizeTriangleWireMode(const SoTriangle& tri);
 
 		RASTERIZER_MODE rasterizerMode;
-		SoFrameBuffer<SoVector3f> colorBuffer;
+		SoFrameBuffer<SoColor> colorBuffer;
 		SoFrameBuffer<float> zBuffer;
 		int screenWidth;
 		int screenHeight;
