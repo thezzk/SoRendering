@@ -6,12 +6,12 @@
 namespace SoRendering
 {
 
-	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SoVector3f::Zero()), rasterizerMode(RASTERIZER_MODE_COLOR)
+	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SoVector3f::Zero()), zBuffer(800, 450, std::numeric_limits<float>::min()), rasterizerMode(RASTERIZER_MODE_COLOR)
 	{
 	}
 
 	SoRasterizer::SoRasterizer(int width, int height, RASTERIZER_MODE rasterizerMode): screenWidth(width), screenHeight(height),
-	colorBuffer(width, height, SoVector3f::Zero()), rasterizerMode(rasterizerMode)
+	colorBuffer(width, height, SoVector3f::Zero()), zBuffer(width, height, std::numeric_limits<float>::min()), rasterizerMode(rasterizerMode)
 	{
 	}
 
@@ -28,17 +28,17 @@ namespace SoRendering
 
 		transform.SetPosition(SoVector3f(0.f, 0.f, 30.f));
 
-		transform.SetRotation(SoMath::GetQuaternionFromEulerAngle
+		/*transform.SetRotation(SoMath::GetQuaternionFromEulerAngle
 		(SoRendering::SoVector3f(
 			SoRendering::SO_DEG2RAD * 0.f,
 			SoRendering::SO_DEG2RAD * 0.f,
-			SoRendering::SO_DEG2RAD * 45.f)));
+			SoRendering::SO_DEG2RAD * 45.f)));*/
 
 		//transform.SetScale(SoVector3f(0.5f, 2.f, 1.f));
 		//End of hard coded transform
 
 		colorBuffer.Clear();
-
+		zBuffer.Clear();
 		const SoMatrix4f modelMatrix = transform.GetMatrix();
 		const SoMatrix4f viewMatrix = camera.GetViewMatrix();
 		const SoMatrix4f projectMatrix = camera.GetProjectMatrix();
@@ -47,7 +47,7 @@ namespace SoRendering
 
 		for(SoTriangle& tri: triangleLst)
 		{
-			SoTriangle transformedTri;
+			SoTriangle transformedTri(tri);
 			for(int i = 0; i < 3; ++i)
 			{
 				SoVector4f& v = transformedTri.vertex[i];
@@ -96,9 +96,22 @@ namespace SoRendering
 		{
 			for (int j = (int)ymin; j < (int)ymax; ++j)
 			{
-				if (SoTriangle::IsPointInside(SoVector3f(i, j, 1.f), tri))
+				//Calculate sample point on the triangle surface
+				SoVector3f normal = ((tri.vertex[1] - tri.vertex[0]).cross3(tri.vertex[2] - tri.vertex[0])).head<3>().normalized();
+				float d = (SoVector3f::Zero() - tri.vertex[0].head<3>()).dot(normal);
+				float z = -(normal.x() * (float)i + normal.y() * (float)j + d) / normal.z();
+				SoVector3f samplePoint((float)i, (float)j, z);
+				if (tri.IsPointInside(samplePoint))
 				{
-					DrawPoint(SoVector2i(i, j), SoVector3f(255.f, 0.f, 0.f));
+
+					SoVector3f barycentricCoord = tri.GetBarycentricCoord(samplePoint);
+					const SoVector3f& color = SoTriangle::InterploateWithBarycentricCoord(tri.color[0], tri.color[1], tri.color[2], barycentricCoord);
+
+					if (zBuffer.GetValueAtPos(i, j) < z)
+					{
+						DrawPoint<SoVector3f>(colorBuffer, SoVector2i(i, j), color);
+						DrawPoint<float>(zBuffer, SoVector2i(i, j), z);
+					}
 				}
 			}
 		}
@@ -121,7 +134,7 @@ namespace SoRendering
 			y1 = y1 >= screenHeight ? screenHeight - 1 : y1;
 			y1 = y1 < 0 ? 0 : y1;
 
-			DrawLine(SoVector2i(x0, y0), SoVector2i(x1, y1), SoVector3f(255.f, 0.f, 0.f));
+			DrawLine(SoVector2i(x0, y0), SoVector2i(x1, y1), tri.color[0]);
 		}
 	}
 
@@ -138,7 +151,8 @@ namespace SoRendering
 
 		while (true)
 		{
-			DrawPoint(SoVector2i(x0, y0), color);
+			DrawPoint<SoVector3f>(colorBuffer, SoVector2i(x0, y0), color);
+
 			if (x0 == x1 && y0 == y1)
 				break;
 			int e2 = 2 * error;

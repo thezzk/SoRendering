@@ -159,6 +159,7 @@
     <ClCompile Include="src\SoCamera.cpp" />
     <ClCompile Include="src\SoRasterizer.cpp" />
     <ClCompile Include="src\SoTransform.cpp" />
+    <ClCompile Include="src\SoTriangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\SoFrameBuffer.h" />
