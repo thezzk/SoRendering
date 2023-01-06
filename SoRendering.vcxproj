@@ -158,6 +158,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SoCamera.cpp" />
     <ClCompile Include="src\SoRasterizer.cpp" />
+    <ClCompile Include="src\SoTexture.cpp" />
     <ClCompile Include="src\SoTransform.cpp" />
     <ClCompile Include="src\SoTriangle.cpp" />
   </ItemGroup>
@@ -168,6 +169,7 @@
     <ClInclude Include="src\SoMath.h" />
     <ClInclude Include="src\SoMesh.h" />
     <ClInclude Include="src\SoRasterizer.h" />
+    <ClInclude Include="src\SoTexture.h" />
     <ClInclude Include="src\SoTransform.h" />
     <ClInclude Include="src\SoTriangle.h" />
   </ItemGroup>

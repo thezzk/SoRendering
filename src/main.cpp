@@ -52,7 +52,7 @@ int main()
 	rasterizer.GetTriangleLst() = triLst;
 
     //SoRendering::SoMesh teapot;
-    //teapot.LoadFromObj("./objs/teapot.obj");
+    //teapot.LoadFromObj("./models/teapot/teapot.obj");
     //rasterizer.GetTriangleLst() = teapot.GetTriangleList();
 	while(1)
     {
