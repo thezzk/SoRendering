@@ -6,12 +6,12 @@
 namespace SoRendering
 {
 
-	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SO_PRESET_COLOR_BLACK), zBuffer(800, 450, std::numeric_limits<float>::min()), rasterizerMode(RASTERIZER_MODE_COLOR)
+	SoRasterizer::SoRasterizer(): screenWidth(800), screenHeight(450), colorBuffer(800, 450, SO_PRESET_COLOR_BLACK), zBuffer(800, 450, -std::numeric_limits<float>::max()), rasterizerMode(RASTERIZER_MODE_COLOR)
 	{
 	}
 
 	SoRasterizer::SoRasterizer(int width, int height, RASTERIZER_MODE rasterizerMode): screenWidth(width), screenHeight(height),
-	colorBuffer(width, height, SO_PRESET_COLOR_BLACK), zBuffer(width, height, std::numeric_limits<float>::min()), rasterizerMode(rasterizerMode)
+	colorBuffer(width, height, SO_PRESET_COLOR_BLACK), zBuffer(width, height, -std::numeric_limits<float>::max()), rasterizerMode(rasterizerMode)
 	{
 	}
 
@@ -26,15 +26,16 @@ namespace SoRendering
 		//hard coded transform
 		SoTransform transform;
 
-		transform.SetPosition(SoVector3f(0.f, 0.f, 30.f));
+		transform.SetPosition(SoVector3f(0.f, 0.f, 0.f));
 
-		/*transform.SetRotation(SoMath::GetQuaternionFromEulerAngle
+		transform.SetRotation(SoMath::GetQuaternionFromEulerAngle
 		(SoRendering::SoVector3f(
-			SoRendering::SO_DEG2RAD * 0.f,
-			SoRendering::SO_DEG2RAD * 0.f,
-			SoRendering::SO_DEG2RAD * 45.f)));*/
+			SoRendering::SO_DEG2RAD * -30.f,
+			SoRendering::SO_DEG2RAD * -75.f,
+			SoRendering::SO_DEG2RAD * 0.f)));
 
 		//transform.SetScale(SoVector3f(0.5f, 2.f, 1.f));
+
 		//End of hard coded transform
 
 		colorBuffer.Clear();
@@ -55,14 +56,15 @@ namespace SoRendering
 				v.x() = v.x() / v.w();
 				v.y() = v.y() / v.w();
 				v.z() = v.z() / v.w();
+				v.w() = 1.f;
 				v.x() = 0.5f * (float)screenWidth * (v.x() + 1.0f);
 				v.y() = 0.5f * (float)screenHeight * (v.y() + 1.0f);
 			}
-			RasterizeTriangle(transformedTri);
+			RasterizeTriangle(transformedTri, texture);
 		}
 	}
 
-	void SoRasterizer::RasterizeTriangle(const SoTriangle& tri)
+	void SoRasterizer::RasterizeTriangle(const SoTriangle& tri, const SoTexture& texture)
 	{
 		switch (rasterizerMode)
 		{
@@ -72,29 +74,32 @@ namespace SoRendering
 		case RASTERIZER_MODE_WIRE:
 			RasterizeTriangleWireMode(tri);
 			break;
+		case RASTERIZER_MODE_TEXTURE:
+			RasterizeTriangleTextureMode(tri, texture);
+			break;
 		}
 	}
 
 	void SoRasterizer::RasterizeTriangleColorMode(const SoTriangle& tri)
 	{
 		float xmin = std::numeric_limits<float>::max();
-		float xmax = std::numeric_limits<float>::min();
+		float xmax = 0;
 		float ymin = std::numeric_limits<float>::max();
-		float ymax = std::numeric_limits<float>::min();
+		float ymax = 0;
 		for (const SoVector4f& v : tri.vertex)
 		{
 			if (v.x() < xmin)
 				xmin = std::max(0.f, v.x());
 			if (v.x() > xmax)
-				xmax = std::min((float)screenWidth, v.x());
+				xmax = std::min((float)(screenWidth - 1), v.x());
 			if (v.y() < ymin)
 				ymin = std::max(0.f, v.y());
 			if (v.y() > ymax)
-				ymax = std::min((float)screenHeight, v.y());
+				ymax = std::min((float)(screenHeight - 1), v.y());
 		}
-		for (int i = (int)xmin; i < (int)xmax; ++i)
+		for (int i = (int)xmin; i <= (int)xmax; ++i)
 		{
-			for (int j = (int)ymin; j < (int)ymax; ++j)
+			for (int j = (int)ymin; j <= (int)ymax; ++j)
 			{
 				//Calculate sample point on the triangle surface
 				SoVector3f normal = ((tri.vertex[1] - tri.vertex[0]).cross3(tri.vertex[2] - tri.vertex[0])).head<3>().normalized();
@@ -174,6 +179,51 @@ namespace SoRendering
 	}
 
 
+	void SoRasterizer::RasterizeTriangleTextureMode(const SoTriangle& tri, const SoTexture& texture)
+	{
+		float xmin = std::numeric_limits<float>::max();
+		float xmax = std::numeric_limits<float>::min();
+		float ymin = std::numeric_limits<float>::max();
+		float ymax = std::numeric_limits<float>::min();
+		for (const SoVector4f& v : tri.vertex)
+		{
+			if (v.x() < xmin)
+				xmin = std::max(0.f, v.x());
+			if (v.x() > xmax)
+				xmax = std::min((float)screenWidth, v.x());
+			if (v.y() < ymin)
+				ymin = std::max(0.f, v.y());
+			if (v.y() > ymax)
+				ymax = std::min((float)screenHeight, v.y());
+		}
+		for (int i = (int)xmin; i < (int)xmax; ++i)
+		{
+			for (int j = (int)ymin; j < (int)ymax; ++j)
+			{
+				//Calculate sample point on the triangle surface
+				SoVector3f normal = ((tri.vertex[1] - tri.vertex[0]).cross3(tri.vertex[2] - tri.vertex[0])).head<3>().normalized();
+				float d = (SoVector3f::Zero() - tri.vertex[0].head<3>()).dot(normal);
+				float z = -(normal.x() * (float)i + normal.y() * (float)j + d) / normal.z();
+				SoVector3f samplePoint((float)i, (float)j, z);
+				if (tri.IsPointInside(samplePoint))
+				{
+
+					SoVector3f barycentricCoord = tri.GetBarycentricCoord(samplePoint);
+					SoVector2f uv =
+						SoTriangle::InterploateWithBarycentricCoord(tri.textureCoord[0], tri.textureCoord[1], tri.textureCoord[2], barycentricCoord);
+					const SoColor color = texture.SampleByUV(uv);
+
+					if (zBuffer.GetValueAtPos(i, j) < z)
+					{
+						DrawPoint<SoColor>(colorBuffer, SoVector2i(i, j), color);
+						DrawPoint<float>(zBuffer, SoVector2i(i, j), z);
+					}
+				}
+			}
+		}
+	}
+
+
 	void SoRasterizer::DrawFrame()
 	{
 		BeginDrawing();
@@ -184,6 +234,7 @@ namespace SoRendering
 				const SoColor& soColor = colorBuffer.GetValueAtPos(j, i);
 
 				Color color;
+			
 				color.r = (char)soColor[0];
 				color.g = (char)soColor[1];
 				color.b = (char)soColor[2];

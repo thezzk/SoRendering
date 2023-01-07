@@ -2,6 +2,7 @@
 #include <vector>
 #include <OBJ_Loader.h>
 #include "SoTriangle.h"
+#include "SoTexture.h"
 namespace SoRendering
 {
 	class SoMesh
@@ -16,7 +17,7 @@ namespace SoRendering
             bool loadout = Loader.LoadFile(path);
             if (!loadout)
             {
-                std::cout << "Obj file:" << path << "load failed!";
+                std::cout << "Obj file:" << path << "load failed!" << std::endl;
                 return;
             }
 			for (auto mesh : Loader.LoadedMeshes)
@@ -27,9 +28,11 @@ namespace SoRendering
                     for (uint j = 0; j < 3; j++)
                     {
                         t.vertex[j] = SoVector4f(mesh.Vertices[i + j].Position.X, mesh.Vertices[i + j].Position.Y, mesh.Vertices[i + j].Position.Z, 1.0);
+                        t.textureCoord[j] = SoVector2f(mesh.Vertices[i + j].TextureCoordinate.X, mesh.Vertices[i + j].TextureCoordinate.Y);
                     }
                     triangleList.push_back(t);
                 }
+                
             }
 
 		}

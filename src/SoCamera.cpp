@@ -3,9 +3,9 @@
 namespace SoRendering
 {
 	SoCamera::SoCamera()
-	: position(SoVector3f::Zero()), targetDirection(SoVector3f::UnitZ()), upDirection(SoVector3f::UnitY()),
+	: position(SoVector3f::Zero()), targetDirection(-SoVector3f::UnitZ()), upDirection(-SoVector3f::UnitY()),
 		orthogonalViewportSize({160.f, 90.f}), projectionType(CAMERA_PROJECTION_ORTHOGRAPHIC), fovY(SO_PI/3.f), aspect(16.f / 9.f),
-		nearPlane(1.f), farPlane(1000.f)
+		nearPlane(0.1f), farPlane(50.f)
 		
 	{
 		UpdateProjectMatrix();
@@ -53,7 +53,7 @@ namespace SoRendering
 			0, 0, 0, 1.f;
 
 
-		const SoVector3f cross = (-targetDirection).cross(upDirection).normalized();
+		const SoVector3f cross = upDirection.cross(targetDirection).normalized();
 
 		invRotate <<
 			cross.x(), cross.y(), cross.z(), 0,
@@ -96,10 +96,9 @@ namespace SoRendering
 		projectMatrix <<
 			sx, 0, 0, 0,
 			0, sy, 0, 0,
-			0, 0, -farPlane / (farPlane - nearPlane), -1.f,
-			0, 0, -(farPlane * nearPlane) / (farPlane - nearPlane), 0;
-		
-			
+			0, 0, -(farPlane + nearPlane) / (farPlane - nearPlane), -2*nearPlane*farPlane/(farPlane - nearPlane),
+			0, 0, -1.f, 0;
+
 	}
 
 

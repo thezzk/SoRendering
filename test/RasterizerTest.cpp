@@ -24,7 +24,7 @@ namespace Test
 			{
 				for (int j = 0; j < width; j++)
 				{
-					auto soColor = texture.Sample(SoRendering::SoVector2i(i, j));
+					auto soColor = texture.SampleByPos(SoRendering::SoVector2i(i, j));
 					Color c;
 					c.r = soColor[0], c.g = soColor[1], c.b = soColor[2], c.a = soColor[3];
 					DrawPixel(i, j, c);

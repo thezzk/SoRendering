@@ -29,10 +29,12 @@ namespace SoRendering
 
 		std::vector<SoTriangle>& GetTriangleLst() { return triangleLst; }
 
+		void SetTexture(const SoTexture& texture) { this->texture = texture; };
 	private:
-		void RasterizeTriangle(const SoTriangle& tri);
+		void RasterizeTriangle(const SoTriangle& tri, const SoTexture& texture);
 		void RasterizeTriangleColorMode(const SoTriangle& tri);
 		void RasterizeTriangleWireMode(const SoTriangle& tri);
+		void RasterizeTriangleTextureMode(const SoTriangle& tri, const SoTexture& texture);
 
 		RASTERIZER_MODE rasterizerMode;
 		SoFrameBuffer<SoColor> colorBuffer;
@@ -40,5 +42,6 @@ namespace SoRendering
 		int screenWidth;
 		int screenHeight;
 		std::vector<SoTriangle> triangleLst;
+		SoTexture texture;
 	};
 }

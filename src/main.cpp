@@ -6,6 +6,7 @@
 #include "SoCamera.h"
 #include "SoTriangle.h"
 #include "SoMesh.h"
+#include "SoTexture.h"
 #include <vector>
 
 static const int screenWidth = 800;
@@ -14,14 +15,14 @@ static const int screenHeight = 450;
 int main()
 {
 
-    SoRendering::SoRasterizer rasterizer(800, 450, SoRendering::SoRasterizer::RASTERIZER_MODE_COLOR);
+    SoRendering::SoRasterizer rasterizer(800, 450, SoRendering::SoRasterizer::RASTERIZER_MODE_TEXTURE);
 
     SoRendering::SoCamera camera;
-    camera.SetPosition({0, 0, -10.f});
+    camera.SetPosition({0, 0, -3.5f});
     camera.SetProjectionType(SoRendering::SoCamera::CAMERA_PROJECTION_PERSPECTIVE);
     rasterizer.Init();
 
-    std::vector<SoRendering::SoTriangle> triLst;
+	/*std::vector<SoRendering::SoTriangle> triLst;
     SoRendering::SoTriangle tri;
     tri.vertex[0] = { 30.f, 0.0f, 5.f, 1.f };
     tri.vertex[1] = { 0.f, 20.0f, 5.f, 1.f };
@@ -49,15 +50,19 @@ int main()
     triback.color[2] = SoRendering::SO_PRESET_COLOR_BLUE;
     triLst.push_back(triback);
 
-	rasterizer.GetTriangleLst() = triLst;
+	rasterizer.GetTriangleLst() = triLst;*/
+    
+    SoRendering::SoMesh cashReg;
+    cashReg.LoadFromObj("./models/cashRegister/registerTri.obj");
+    SoRendering::SoTexture texture("./models/cashRegister/cashRegister.png");
+    rasterizer.SetTexture(texture);
 
-    //SoRendering::SoMesh teapot;
-    //teapot.LoadFromObj("./models/teapot/teapot.obj");
-    //rasterizer.GetTriangleLst() = teapot.GetTriangleList();
+	rasterizer.GetTriangleLst() = cashReg.GetTriangleList();
+    
 	while(1)
     {
         SoRendering::SoVector3f cameraPos = camera.GetPosition();
-        const float moveDelta = 2.f;
+        const float moveDelta = .5f;
     	if (IsKeyDown(KEY_W))
         {
             cameraPos[2] += moveDelta;
