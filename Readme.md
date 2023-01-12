@@ -2,5 +2,5 @@
 A Soft Renderer
 
 ## Output:
-![Cash Register](/misc/renderOutputCashRegister.JPG)
+![Demo](/misc/3ModeExample.gif)
 
