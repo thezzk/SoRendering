@@ -35,9 +35,9 @@ namespace SoRendering
 		SoColor SampleByUV(const SoVector2f& uv) const
 		{
 			int x = (int)(uv[0] * (float)width);
-			x = x == width ? width - 1: x;
+			x = x >= width ? width - 1: x;
 			int y = (int)((1.f- uv[1]) * (float)height);
-			y = y == height ? height - 1 : y;
+			y = y >= height ? height - 1 : y;
 			return SampleByPos(SoVector2i(x, y));
 		}
 

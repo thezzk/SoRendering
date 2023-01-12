@@ -21,6 +21,7 @@ namespace SoRendering
 
 		bool IsPointInside(const SoVector3f& point, bool cullingBack = true) const;
 		SoVector3f GetBarycentricCoord(const SoVector3f& point) const;
+		SoVector3f GetBarycentricCoord2D(const SoVector2f& point) const;
 
 		template<typename T, typename S = typename T::Scalar>
 		static T InterploateWithBarycentricCoord(const T& v0, const T& v1, const T& v2, const SoVector3f& barycentricCoord)

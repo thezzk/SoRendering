@@ -10,11 +10,23 @@ namespace SoRendering
 		{
 			flattenTriVertices[i] = SoVector3f(vertex[i].x(), vertex[i].y(), 1.f);
 		}
-		float c1 = (flattenTriVertices[1] - flattenTriVertices[0]).cross(pointWithoutZ - flattenTriVertices[0]).dot(SoVector3f::UnitZ());
-		float c2 = (flattenTriVertices[2] - flattenTriVertices[1]).cross(pointWithoutZ - flattenTriVertices[1]).dot(SoVector3f::UnitZ());
-		float c3 = (flattenTriVertices[0] - flattenTriVertices[2]).cross(pointWithoutZ - flattenTriVertices[2]).dot(SoVector3f::UnitZ());
+		SoVector3f f0 = flattenTriVertices[1].cross(flattenTriVertices[0]);
+		SoVector3f f1 = flattenTriVertices[2].cross(flattenTriVertices[1]);
+		SoVector3f f2 = flattenTriVertices[0].cross(flattenTriVertices[2]);
 
-		return cullingBack ? (c1 > 0 && c2 > 0 && c3 > 0) : (c1 > 0 && c2 > 0 && c3 > 0) || (c1 < 0 && c2 < 0 && c3 < 0);
+		if ((pointWithoutZ.dot(f0) * f0.dot(flattenTriVertices[2]) > 0)
+			&& (pointWithoutZ.dot(f1) * f1.dot(flattenTriVertices[0]) > 0)
+			&& (pointWithoutZ.dot(f2) * f2.dot(flattenTriVertices[1]) > 0))
+			return true;
+		return false;
+	}
+
+	SoVector3f SoTriangle::GetBarycentricCoord2D(const SoVector2f& point) const
+	{
+		float c1 = (point.x() * (vertex[1].y() - vertex[2].y()) + (vertex[2].x() - vertex[1].x()) * point.y() + vertex[1].x() * vertex[2].y() - vertex[2].x() * vertex[1].y()) / (vertex[0].x() * (vertex[1].y() - vertex[2].y()) + (vertex[2].x() - vertex[1].x()) * vertex[0].y() + vertex[1].x() * vertex[2].y() - vertex[2].x() * vertex[1].y());
+		float c2 = (point.x() * (vertex[2].y() - vertex[0].y()) + (vertex[0].x() - vertex[2].x()) * point.y() + vertex[2].x() * vertex[0].y() - vertex[0].x() * vertex[2].y()) / (vertex[1].x() * (vertex[2].y() - vertex[0].y()) + (vertex[0].x() - vertex[2].x()) * vertex[1].y() + vertex[2].x() * vertex[0].y() - vertex[0].x() * vertex[2].y());
+		float c3 = (point.x() * (vertex[0].y() - vertex[1].y()) + (vertex[1].x() - vertex[0].x()) * point.y() + vertex[0].x() * vertex[1].y() - vertex[1].x() * vertex[0].y()) / (vertex[2].x() * (vertex[0].y() - vertex[1].y()) + (vertex[1].x() - vertex[0].x()) * vertex[2].y() + vertex[0].x() * vertex[1].y() - vertex[1].x() * vertex[0].y());
+		return SoVector3f(c1,c2,c3);
 	}
 
 	SoVector3f SoTriangle::GetBarycentricCoord(const SoVector3f& point) const

@@ -190,27 +190,26 @@ namespace SoRendering
 			if (v.x() < xmin)
 				xmin = std::max(0.f, v.x());
 			if (v.x() > xmax)
-				xmax = std::min((float)screenWidth, v.x());
+				xmax = std::min((float)screenWidth - 1.f, v.x());
 			if (v.y() < ymin)
 				ymin = std::max(0.f, v.y());
 			if (v.y() > ymax)
-				ymax = std::min((float)screenHeight, v.y());
+				ymax = std::min((float)screenHeight - 1.f, v.y());
 		}
-		for (int i = (int)xmin; i < (int)xmax; ++i)
+		for (int i = (int)xmin; i <= (int)xmax; ++i)
 		{
-			for (int j = (int)ymin; j < (int)ymax; ++j)
+			for (int j = (int)ymin; j <= (int)ymax; ++j)
 			{
-				//Calculate sample point on the triangle surface
-				SoVector3f normal = ((tri.vertex[1] - tri.vertex[0]).cross3(tri.vertex[2] - tri.vertex[0])).head<3>().normalized();
-				float d = (SoVector3f::Zero() - tri.vertex[0].head<3>()).dot(normal);
-				float z = -(normal.x() * (float)i + normal.y() * (float)j + d) / normal.z();
-				SoVector3f samplePoint((float)i, (float)j, z);
+				SoVector3f samplePoint((float)i, (float)j, 1.f);
 				if (tri.IsPointInside(samplePoint))
 				{
 
-					SoVector3f barycentricCoord = tri.GetBarycentricCoord(samplePoint);
+					SoVector3f barycentricCoord = tri.GetBarycentricCoord2D(SoVector2f(samplePoint.x(), samplePoint.y()));
+
 					SoVector2f uv =
 						SoTriangle::InterploateWithBarycentricCoord(tri.textureCoord[0], tri.textureCoord[1], tri.textureCoord[2], barycentricCoord);
+					float z = SoTriangle::InterploateWithBarycentricCoord(tri.vertex[0], tri.vertex[1], tri.vertex[2], barycentricCoord).z();
+
 					const SoColor color = texture.SampleByUV(uv);
 
 					if (zBuffer.GetValueAtPos(i, j) < z)
@@ -227,19 +226,17 @@ namespace SoRendering
 	void SoRasterizer::DrawFrame()
 	{
 		BeginDrawing();
-		for(int i = 0; i < screenHeight; ++i)
+		for(int i = 0; i < screenWidth; ++i)
 		{
-			for(int j = 0; j < screenWidth; ++j)
+			for(int j = 0; j < screenHeight; ++j)
 			{
-				const SoColor& soColor = colorBuffer.GetValueAtPos(j, i);
-
+				const SoColor& soColor = colorBuffer.GetValueAtPos(i, j);
 				Color color;
-			
 				color.r = (char)soColor[0];
 				color.g = (char)soColor[1];
 				color.b = (char)soColor[2];
 				color.a = (char)soColor[3];
-				DrawPixel(j, screenHeight - 1 - i, color); // IN Raylib, coordinate (0,0) begins from the top left corner
+				DrawPixel(i, screenHeight - 1 - j, color); // IN Raylib, coordinate (0,0) begins from the top left corner
 			}
 		}
 		EndDrawing();
