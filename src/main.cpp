@@ -15,10 +15,10 @@ static const int screenHeight = 450;
 int main()
 {
 
-    SoRendering::SoRasterizer rasterizer(800, 450, SoRendering::SoRasterizer::RASTERIZER_MODE_TEXTURE);
+    SoRendering::SoRasterizer rasterizer(800, 450, SoRendering::SoRasterizer::RASTERIZER_MODE_PHONG);
 
     SoRendering::SoCamera camera;
-    camera.SetPosition({0, 0, -3.5f});
+    camera.SetPosition({0, 0.8f, -3.5f});
     camera.SetProjectionType(SoRendering::SoCamera::CAMERA_PROJECTION_PERSPECTIVE);
     rasterizer.Init();
 
@@ -52,13 +52,20 @@ int main()
 
 	rasterizer.GetTriangleLst() = triLst;*/
     
-    SoRendering::SoMesh cashReg;
+    /*SoRendering::SoMesh spot;
+    spot.LoadFromObj("./models/spot/spot_triangulated.obj");
+    SoRendering::SoTexture texture("./models/spot/spot_texture.png");
+    rasterizer.SetTexture(texture);
+
+	rasterizer.GetTriangleLst() = spot.GetTriangleList();*/
+
+	SoRendering::SoMesh cashReg;
     cashReg.LoadFromObj("./models/cashRegister/registerTri.obj");
     SoRendering::SoTexture texture("./models/cashRegister/cashRegister.png");
     rasterizer.SetTexture(texture);
 
-	rasterizer.GetTriangleLst() = cashReg.GetTriangleList();
-    
+    rasterizer.GetTriangleLst() = cashReg.GetTriangleList();
+
 	while(1)
     {
         SoRendering::SoVector3f cameraPos = camera.GetPosition();

@@ -44,6 +44,11 @@ namespace SoRendering
 			return position;
 		}
 
+		const SoVector3f& GetTargetDir() const
+		{
+			return targetDirection;
+		}
+
 		float GetFovY() const
 		{
 			return fovY;

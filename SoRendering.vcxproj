@@ -163,6 +163,7 @@
     <ClCompile Include="src\SoTriangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\SoPointLight.h" />
     <ClInclude Include="src\SoFrameBuffer.h" />
     <ClInclude Include="src\SoCamera.h" />
     <ClInclude Include="src\SoConstant.h" />
