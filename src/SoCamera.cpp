@@ -3,7 +3,7 @@
 namespace SoRendering
 {
 	SoCamera::SoCamera()
-	: position(SoVector3f::Zero()), targetDirection(-SoVector3f::UnitZ()), upDirection(SoVector3f::UnitY()),
+	: position(SoVector3f::Zero()), targetDirection(SoVector3f::UnitZ()), upDirection(SoVector3f::UnitY()),
 		orthogonalViewportSize({8.f, 4.5f}), projectionType(CAMERA_PROJECTION_ORTHOGRAPHIC), fovY(SO_PI/3.f), aspect(16.f / 9.f),
 		nearPlane(0.1f), farPlane(50.f)
 		
@@ -38,7 +38,7 @@ namespace SoRendering
 
 	void SoCamera::LookAt(const SoVector3f& targetDirection, const SoVector3f& upDirection)
 	{
-		this->targetDirection = -targetDirection.normalized();
+		this->targetDirection = targetDirection.normalized();
 		this->upDirection = upDirection.normalized();
 		UpdateViewMatrix();
 	}
@@ -96,7 +96,7 @@ namespace SoRendering
 		projectMatrix <<
 			sx, 0, 0, 0,
 			0, sy, 0, 0,
-			0, 0, -(farPlane + nearPlane) / (farPlane - nearPlane), -2*nearPlane*farPlane/(farPlane - nearPlane),
+			0, 0, (farPlane + nearPlane) / (farPlane - nearPlane), 2*nearPlane*farPlane/(farPlane - nearPlane),
 			0, 0, -1.f, 0;
 
 	}
